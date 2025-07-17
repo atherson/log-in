@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin Dashboard</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="admin-container">
+    <h1>Admin Dashboard</h1>
+    <table id="userTable"></table>
+    <a href="index.html" class="about-link">Back to Login</a>
+  </div>
+  <script>
+    const users = JSON.parse(localStorage.getItem('users') || '[]');
+
+    if (!users.some(u => u.isAdmin && u.username === sessionStorage.getItem('currentUser'))) {
+      alert('Access denied');
+      window.location = 'index.html';
+    }
+
+    const formatDate = str => {
+      if (!str) return '—';
+      return new Date(str).toLocaleString('en-GB', {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit',
+        hour12: true
+      });
+    };
+
+    const table = document.getElementById('userTable');
+    table.innerHTML = `<thead><tr>${['Username','Password','Phone','Email','SignUp Time','Login Count','Last Login']
+      .map(h => `<th>${h}</th>`).join('')}</tr></thead><tbody></tbody>`;
+
+    const tbody = table.querySelector('tbody');
+    users.forEach(u => {
+      const pw = '*'.repeat(u.password.length);
+      const ph = '*'.repeat(u.phone.length - 3) + u.phone.slice(-3);
+      const signupTime = formatDate(u.signupTime);
+      const lastLogin = formatDate(u.lastLogin);
+
+      const row = `<tr>${[
+        u.username,
+        pw,
+        ph,
+        u.email,
+        signupTime,
+        u.loginCount,
+        lastLogin
+      ].map(v => `<td>${v}</td>`).join('')}</tr>`;
+
+      tbody.innerHTML += row;
+    });
+  </script>
+</body>
+</html>
